@@ -4,6 +4,7 @@
   --drawer-color-hover: #FFF9E6;             /* theme/drawer/item/background/hover (Yellow/15) */
   --drawer-color-active: #FDD133;            /* theme/drawer/item/background/active */
   --drawer-color-header-active: #FFF9E6;     /* Expanded header background */
+  --drawer-color-has-active-child: var(--drawer-color-hover); /* Collapsed header with active child */
   --drawer-color-bg: #FFFFFF;                /* theme/drawer/item/background/standard */
   --drawer-color-separator: #efefef;         /* Gray/15 */
   
@@ -259,7 +260,7 @@
 
 /* Expandable item с активным дочерним элементом, но свернутый */
 .expandable-item-button.has-active-child:not(.active) {
-  background-color: var(--drawer-color-hover);
+  background-color: var(--drawer-color-has-active-child);
 }
 
 .expandable-item-content {

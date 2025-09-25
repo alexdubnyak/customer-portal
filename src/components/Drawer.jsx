@@ -30,30 +30,6 @@ const ArrowDropDownIcon = () => (
   <img src={arrowDropDownIcon} alt="Arrow Down" className="icon-arrow-down" />
 );
 
-const ArrowBackIcon = () => (
-  <img src={arrowDropDownIcon} alt="Arrow Back" className="icon-arrow-back" style={{ transform: 'rotate(90deg)' }} />
-);
-
-const ShoppingCartIcon = () => (
-  <img src={storeIcon} alt="Store" className="icon-store" />
-);
-
-const OpenInNewIcon = () => (
-  <svg className="icon-arrow-down" viewBox="0 0 24 24" fill="none">
-    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" fill="currentColor" />
-  </svg>
-);
-
-const LogoIcon = () => (
-  <div className="drawer-logo">
-    <div className="drawer-logo-text">Graebert</div>
-  </div>
-);
-
-const IntercomChatIcon = () => (
-  <img src={intercomChatIcon} alt="Chat" className="intercom-icon" />
-);
-
 const ArrowDropUpIcon = () => (
   <img
     src={arrowDropDownIcon}
@@ -78,20 +54,26 @@ const KeyIcon = () => (
   <img src={permissionsIcon} alt="Permissions" className="icon-permissions" />
 );
 
+const ShoppingCartIcon = () => (
+  <img src={storeIcon} alt="Store" className="icon-store" />
+);
+
+const OpenInNewIcon = () => (
+  <svg className="icon-arrow-down" viewBox="0 0 24 24" fill="none">
+    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" fill="currentColor" />
+  </svg>
+);
+
+const IntercomChatIcon = () => (
+  <img src={intercomChatIcon} alt="Chat" className="intercom-icon" />
+);
+
 const AccountBoxIcon = () => (
   <img src={profileIcon} alt="Profile" className="icon-profile" />
 );
 
 const AccountCircleIcon = () => (
   <img src={personalIcon} alt="Personal" className="icon-personal" />
-);
-
-const CircleSmallIcon = () => (
-  <div className="circle-small"></div>
-);
-
-const CircleSmallActiveIcon = () => (
-  <div className="circle-small-active"></div>
 );
 
 // 8x8 filled black bullet for submenu items per Figma
@@ -389,6 +371,7 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
             title="Organization"
             isExpanded={expandedSections.organization}
             onToggle={() => toggleSection('organization')}
+            isActive={activeSection?.startsWith('organization')}
             level={0}
             hasActiveChild={activeSection?.startsWith('organization')}
           >
@@ -486,6 +469,7 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
             title="Personal"
             isExpanded={expandedSections.personal}
             onToggle={() => toggleSection('personal')}
+            isActive={activeSection?.startsWith('personal')}
             level={0}
             hasActiveChild={activeSection?.startsWith('personal')}
           >
