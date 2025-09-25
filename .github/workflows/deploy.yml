@@ -1,0 +1,54 @@
+name: Deploy Customer Portal to S3
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build project
+      run: npm run build
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-1
+    
+    - name: Deploy to S3
+      run: |
+        aws s3 sync build/ s3://graebert-dev-projects/customer-portal/ \
+          --delete \
+          --cache-control "max-age=31536000" \
+          --exclude "*.html" \
+          --exclude "*.json"
+        
+        aws s3 sync build/ s3://graebert-dev-projects/customer-portal/ \
+          --exclude "*" \
+          --include "*.html" \
+          --include "*.json" \
+          --cache-control "max-age=300"
+    
+    - name: Invalidate CloudFront (if configured)
+      if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"

@@ -5,7 +5,6 @@ import './Drawer.css';
 import homeIcon from '../assets/icons/Drawer/home.svg';
 import dashboardIcon from '../assets/icons/Drawer/dashboard.svg';
 import arrowDropDownIcon from '../assets/icons/Drawer/arrow-down.svg';
-import arrowDropUpIcon from '../assets/icons/Drawer/arrow-up.svg';
 import logoHeaderIcon from '../assets/icons/Drawer/logo-header.svg';
 import arrowLeftIcon from '../assets/icons/Drawer/arrow-left.svg';
 import arrowRightIcon from '../assets/icons/Drawer/arrow-right.svg';
@@ -56,7 +55,11 @@ const IntercomChatIcon = () => (
 );
 
 const ArrowDropUpIcon = () => (
-  <img src={arrowDropUpIcon} alt="Arrow Up" className="icon-arrow-up" />
+  <img
+    src={arrowDropDownIcon}
+    alt="Arrow Up"
+    className="icon-arrow-up rotated"
+  />
 );
 
 const WorkIcon = () => (
@@ -91,19 +94,26 @@ const CircleSmallActiveIcon = () => (
   <div className="circle-small-active"></div>
 );
 
+// 8x8 filled black bullet for submenu items per Figma
+const BulletIcon = () => (
+  <div className="bullet-8"></div>
+);
+
 const ExpandableItem = ({
   icon,
   title,
   isExpanded,
   onToggle,
   children,
-  isActive = false
+  isActive = false,
+  level = 0,
+  hasActiveChild = false
 }) => {
   return (
     <div className="expandable-item">
       <button
         onClick={onToggle}
-        className={`expandable-item-button ${isActive ? 'active' : ''}`}
+        className={`expandable-item-button drawer-level-${level} ${isActive ? 'active' : ''} ${hasActiveChild && !isExpanded ? 'has-active-child' : ''}`}
       >
         <div className="expandable-item-content">
           <div className="menu-item-icon">
@@ -126,11 +136,11 @@ const ExpandableItem = ({
   );
 };
 
-const MenuItem = ({ icon, title, isActive = false, hasExternalLink = false, onClick, sectionKey }) => {
+const MenuItem = ({ icon, title, isActive = false, hasExternalLink = false, onClick, sectionKey, level = 0 }) => {
   return (
     <button
       onClick={() => onClick && onClick(sectionKey)}
-      className={`menu-item ${isActive ? 'active' : ''}`}
+      className={`menu-item drawer-level-${level} ${isActive ? 'active' : ''}`}
     >
       <div className="menu-item-icon">
         {icon}
@@ -150,8 +160,12 @@ const MenuItem = ({ icon, title, isActive = false, hasExternalLink = false, onCl
 const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home', onSectionChange }) => {
   const [expandedSections, setExpandedSections] = useState({
     organization: false,
-    personal: false
+    personal: false,
+    users: false,
+    permissions: false,
   });
+
+  const [hoveredSection, setHoveredSection] = useState(null);
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -168,7 +182,10 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
 
   if (isCollapsed) {
     return (
-      <div className="drawer-collapsed">
+      <div 
+        className="drawer-collapsed"
+        onMouseLeave={() => setHoveredSection(null)}
+      >
         <div className="drawer-header">
           <button
             onClick={onToggleCollapse}
@@ -178,19 +195,161 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
           </button>
         </div>
         <div className="collapsed-menu">
-          <div className="collapsed-menu-item active">
+          <div 
+            className={`collapsed-menu-item ${activeSection === 'home' ? 'active' : ''}`}
+            onClick={() => handleSectionClick('home')}
+          >
             <HomeIcon />
           </div>
-          <div className="collapsed-menu-item">
+          <div 
+            className={`collapsed-menu-item ${activeSection?.startsWith('organization') ? 'active' : ''}`}
+            onClick={() => handleSectionClick('organization-dashboard')}
+            onMouseEnter={() => setHoveredSection('organization')}
+          >
             <WorkIcon />
           </div>
-          <div className="collapsed-menu-item">
+          <div 
+            className={`collapsed-menu-item ${activeSection?.startsWith('personal') ? 'active' : ''}`}
+            onClick={() => handleSectionClick('personal-devices')}
+            onMouseEnter={() => setHoveredSection('personal')}
+          >
             <AccountCircleIcon />
           </div>
-          <div className="collapsed-menu-item">
+          <div 
+            className={`collapsed-menu-item ${activeSection === 'store' ? 'active' : ''}`}
+            onClick={() => handleSectionClick('store')}
+          >
             <ShoppingCartIcon />
           </div>
         </div>
+
+        {/* Hover panels for collapsed menu */}
+        {hoveredSection === 'organization' && (
+          <div className="collapsed-hover-panel">
+            <div className="hover-panel-content">
+              <div className="hover-panel-header">
+                <WorkIcon />
+                <span>Organization</span>
+              </div>
+              <MenuItem
+                icon={<DashboardIcon />}
+                title="Dashboard"
+                isActive={activeSection === 'organization-dashboard'}
+                onClick={handleSectionClick}
+                sectionKey="organization-dashboard"
+                level={1}
+              />
+              <ExpandableItem
+                icon={<GroupIcon />}
+                title="Users"
+                isExpanded={expandedSections.users}
+                onToggle={() => toggleSection('users')}
+                isActive={activeSection?.startsWith('organization-users')}
+                level={1}
+                hasActiveChild={activeSection?.startsWith('organization-users')}
+              >
+                <div className="expandable-item-children">
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="All users"
+                    isActive={activeSection === 'organization-users-all'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-users-all"
+                    level={2}
+                  />
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="Requests"
+                    isActive={activeSection === 'organization-users-requests'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-users-requests"
+                    level={2}
+                  />
+                </div>
+              </ExpandableItem>
+              <MenuItem
+                icon={<DevicesIcon />}
+                title="Devices"
+                isActive={activeSection === 'organization-devices'}
+                onClick={handleSectionClick}
+                sectionKey="organization-devices"
+                level={1}
+              />
+              <ExpandableItem
+                icon={<KeyIcon />}
+                title="Permissions"
+                isExpanded={expandedSections.permissions}
+                onToggle={() => toggleSection('permissions')}
+                isActive={activeSection?.startsWith('organization-permissions')}
+                level={1}
+                hasActiveChild={activeSection?.startsWith('organization-permissions')}
+              >
+                <div className="expandable-item-children">
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="Roles"
+                    isActive={activeSection === 'organization-permissions-roles'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-permissions-roles"
+                    level={2}
+                  />
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="Policies"
+                    isActive={activeSection === 'organization-permissions-policies'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-permissions-policies"
+                    level={2}
+                  />
+                </div>
+              </ExpandableItem>
+              <MenuItem
+                icon={<AccountBoxIcon />}
+                title="Profile"
+                isActive={activeSection === 'organization-profile'}
+                onClick={handleSectionClick}
+                sectionKey="organization-profile"
+                level={1}
+              />
+            </div>
+          </div>
+        )}
+
+        {hoveredSection === 'personal' && (
+          <div className="collapsed-hover-panel">
+            <div className="hover-panel-content">
+              <div className="hover-panel-header">
+                <AccountCircleIcon />
+                <span>Personal</span>
+              </div>
+              <MenuItem
+                icon={<DevicesIcon />}
+                title="Devices"
+                isActive={activeSection === 'personal-devices'}
+                onClick={handleSectionClick}
+                sectionKey="personal-devices"
+                level={1}
+              />
+              <MenuItem
+                icon={<KeyIcon />}
+                title="Permissions"
+                isActive={activeSection === 'personal-permissions'}
+                onClick={handleSectionClick}
+                sectionKey="personal-permissions"
+                level={1}
+              />
+              <MenuItem
+                icon={<AccountBoxIcon />}
+                title="Profile"
+                isActive={activeSection === 'personal-profile'}
+                onClick={handleSectionClick}
+                sectionKey="personal-profile"
+                level={1}
+              />
+            </div>
+          </div>
+        )}
+
         
         <div className="collapsed-footer">
           <IntercomChatIcon />
@@ -222,6 +381,7 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
             isActive={activeSection === 'home'}
             onClick={handleSectionClick}
             sectionKey="home"
+            level={0}
           />
 
           <ExpandableItem
@@ -229,42 +389,94 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
             title="Organization"
             isExpanded={expandedSections.organization}
             onToggle={() => toggleSection('organization')}
+            level={0}
+            hasActiveChild={activeSection?.startsWith('organization')}
           >
             <div className="expandable-item-children">
+              {/* Dashboard is a simple item (no arrow) */}
               <MenuItem
                 icon={<DashboardIcon />}
                 title="Dashboard"
                 isActive={activeSection === 'organization-dashboard'}
                 onClick={handleSectionClick}
                 sectionKey="organization-dashboard"
+                level={1}
               />
-              <MenuItem
+
+              <ExpandableItem
                 icon={<GroupIcon />}
                 title="Users"
-                isActive={activeSection === 'organization-users'}
-                onClick={handleSectionClick}
-                sectionKey="organization-users"
-              />
+                isExpanded={expandedSections.users}
+                onToggle={() => toggleSection('users')}
+                isActive={activeSection?.startsWith('organization-users')}
+                level={1}
+                hasActiveChild={activeSection?.startsWith('organization-users')}
+              >
+                <div className="expandable-item-children">
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="All users"
+                    isActive={activeSection === 'organization-users-all'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-users-all"
+                    level={2}
+                  />
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="Requests"
+                    isActive={activeSection === 'organization-users-requests'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-users-requests"
+                    level={2}
+                  />
+                </div>
+              </ExpandableItem>
+
               <MenuItem
                 icon={<DevicesIcon />}
                 title="Devices"
                 isActive={activeSection === 'organization-devices'}
                 onClick={handleSectionClick}
                 sectionKey="organization-devices"
+                level={1}
               />
-              <MenuItem
+
+              <ExpandableItem
                 icon={<KeyIcon />}
                 title="Permissions"
-                isActive={activeSection === 'organization-permissions'}
-                onClick={handleSectionClick}
-                sectionKey="organization-permissions"
-              />
+                isExpanded={expandedSections.permissions}
+                onToggle={() => toggleSection('permissions')}
+                isActive={activeSection?.startsWith('organization-permissions')}
+                level={1}
+                hasActiveChild={activeSection?.startsWith('organization-permissions')}
+              >
+                <div className="expandable-item-children">
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="Roles"
+                    isActive={activeSection === 'organization-permissions-roles'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-permissions-roles"
+                    level={2}
+                  />
+                  <MenuItem
+                    icon={<BulletIcon />}
+                    title="Policies"
+                    isActive={activeSection === 'organization-permissions-policies'}
+                    onClick={handleSectionClick}
+                    sectionKey="organization-permissions-policies"
+                    level={2}
+                  />
+                </div>
+              </ExpandableItem>
+
               <MenuItem
                 icon={<AccountBoxIcon />}
                 title="Profile"
                 isActive={activeSection === 'organization-profile'}
                 onClick={handleSectionClick}
                 sectionKey="organization-profile"
+                level={1}
               />
             </div>
           </ExpandableItem>
@@ -274,6 +486,8 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
             title="Personal"
             isExpanded={expandedSections.personal}
             onToggle={() => toggleSection('personal')}
+            level={0}
+            hasActiveChild={activeSection?.startsWith('personal')}
           >
             <div className="expandable-item-children">
               <MenuItem
@@ -282,6 +496,7 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
                 isActive={activeSection === 'personal-devices'}
                 onClick={handleSectionClick}
                 sectionKey="personal-devices"
+                level={1}
               />
               <MenuItem
                 icon={<KeyIcon />}
@@ -289,6 +504,7 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
                 isActive={activeSection === 'personal-permissions'}
                 onClick={handleSectionClick}
                 sectionKey="personal-permissions"
+                level={1}
               />
               <MenuItem
                 icon={<AccountBoxIcon />}
@@ -296,6 +512,7 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
                 isActive={activeSection === 'personal-profile'}
                 onClick={handleSectionClick}
                 sectionKey="personal-profile"
+                level={1}
               />
             </div>
           </ExpandableItem>
@@ -307,6 +524,7 @@ const Drawer = ({ isCollapsed = false, onToggleCollapse, activeSection = 'home',
             onClick={handleSectionClick}
             sectionKey="store"
             isActive={activeSection === 'store'}
+            level={0}
           />
         </div>
 

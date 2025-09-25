@@ -1,6 +1,36 @@
+:root {
+  /* Drawer color tokens */
+  --drawer-color-text: #191919;               /* theme/button/primary/text/textColor */
+  --drawer-color-hover: #FFF9E6;             /* theme/drawer/item/background/hover (Yellow/15) */
+  --drawer-color-active: #FDD133;            /* theme/drawer/item/background/active */
+  --drawer-color-header-active: #FFF9E6;     /* Expanded header background */
+  --drawer-color-bg: #FFFFFF;                /* theme/drawer/item/background/standard */
+  --drawer-color-separator: #efefef;         /* Gray/15 */
+  
+  /* Drawer padding tokens for nesting levels */
+  --drawer-padding-level-0: 12px;            /* Top level items */
+  --drawer-padding-level-1: 32px;            /* First nested level */
+  --drawer-padding-level-2: 52px;            /* Second nested level */
+  --drawer-padding-level-3: 72px;            /* Third nested level (if needed) */
+}
+
+/* Drawer level classes for explicit padding control */
+.drawer-level-0 { 
+  padding-left: var(--drawer-padding-level-0) !important; 
+}
+.drawer-level-1 { 
+  padding-left: var(--drawer-padding-level-1) !important; 
+}
+.drawer-level-2 { 
+  padding-left: var(--drawer-padding-level-2) !important; 
+}
+.drawer-level-3 { 
+  padding-left: var(--drawer-padding-level-3) !important; 
+}
+
 .drawer {
   width: 224px;
-  background-color: white;
+  background-color: var(--drawer-color-bg);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -9,7 +39,7 @@
 
 .drawer-collapsed {
   width: 80px;
-  background-color: white;
+  background-color: var(--drawer-color-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,7 +52,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--drawer-color-separator);
 }
 
 .header-logo {
@@ -50,7 +80,7 @@
 }
 
 .drawer-toggle:hover {
-  background-color: #f3f4f6;
+  background-color: var(--drawer-color-hover);
   color: #374151;
 }
 
@@ -62,7 +92,7 @@
 }
 
 .drawer-toggle-button {
-  background-color: white;
+  background-color: var(--drawer-color-bg);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -74,7 +104,7 @@
 }
 
 .drawer-toggle-button:hover {
-  background-color: #f9fafb;
+  background-color: var(--drawer-color-hover);
 }
 
 .drawer-toggle-inner {
@@ -143,7 +173,7 @@
   align-items: center;
   gap: 12px;
   padding: 6px 12px;
-  background-color: white;
+  background-color: var(--drawer-color-bg);
   border: none;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -151,11 +181,16 @@
 }
 
 .menu-item:hover {
-  background-color: #f9fafb;
+  background-color: var(--drawer-color-hover);
 }
 
 .menu-item.active {
-  background-color: #fef3c7;
+  background-color: var(--drawer-color-active);
+}
+
+/* For inner items inside an expanded group, use the Figma active color */
+.expandable-item-children .menu-item.active {
+  background-color: var(--drawer-color-active);
 }
 
 .menu-item-icon {
@@ -207,7 +242,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 6px 12px;
-  background-color: white;
+  background-color: var(--drawer-color-bg);
   border: none;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -215,11 +250,16 @@
 }
 
 .expandable-item-button:hover {
-  background-color: #f9fafb;
+  background-color: var(--drawer-color-hover);
 }
 
 .expandable-item-button.active {
-  background-color: #fef3c7;
+  background-color: var(--drawer-color-header-active);
+}
+
+/* Expandable item с активным дочерним элементом, но свернутый */
+.expandable-item-button.has-active-child:not(.active) {
+  background-color: var(--drawer-color-hover);
 }
 
 .expandable-item-content {
@@ -249,16 +289,18 @@
   object-fit: contain;
 }
 
-.expandable-item-children {
-  background-color: white;
-  padding-top: 8px;
-  padding-bottom: 8px;
+/* Keep rotated arrow centered */
+.expandable-item-toggle img.rotated {
+  transform: translate(-50%, -50%) rotate(180deg);
 }
 
-.expandable-item-children .menu-item {
-  margin-bottom: 4px;
-  padding-left: 40px;
+.expandable-item-children {
+  background-color: var(--drawer-color-bg);
+  padding-top: 0;
+  padding-bottom: 0;
 }
+
+/* Remove old nested padding rules - now using drawer-level-* classes */
 
 .collapsed-menu {
   display: flex;
@@ -292,11 +334,69 @@
 }
 
 .collapsed-menu-item:hover {
-  background-color: #f3f4f6;
+  background-color: var(--drawer-color-hover);
 }
 
 .collapsed-menu-item.active {
-  background-color: #fef3c7;
+  background-color: var(--drawer-color-active);
+}
+
+/* Hover panel for collapsed menu items */
+.collapsed-hover-panel {
+  position: fixed;
+  left: 80px; /* Width of collapsed drawer */
+  top: 0;
+  bottom: 0;
+  width: 224px; /* Same width as expanded drawer */
+  background-color: var(--drawer-color-bg);
+  border-right: 1px solid #e5e7eb;
+  box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.1), 2px 0 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.hover-panel-content {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.hover-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  padding-left: var(--drawer-padding-level-0);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--drawer-color-text);
+  margin-bottom: 8px;
+}
+
+.hover-panel-header svg {
+  width: 24px;
+  height: 24px;
+}
+
+.hover-panel-section {
+  margin: 4px 0;
+}
+
+.hover-panel-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  padding-left: var(--drawer-padding-level-1);
+  font-weight: 500;
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.hover-panel-section-header svg {
+  width: 20px;
+  height: 20px;
 }
 
 .collapsed-menu-item img {
@@ -307,25 +407,6 @@
   width: 18px;
   height: 18px;
   object-fit: contain;
-}
-
-.collapsed-toggle {
-  margin-bottom: 16px;
-  padding: 8px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  position: relative;
-}
-
-.collapsed-toggle:hover {
-  background-color: #f3f4f6;
 }
 
 .collapsed-toggle img {
@@ -393,7 +474,7 @@
 .chat-icon svg {
   width: 24px;
   height: 24px;
-  color: white;
+  color: var(--drawer-color-bg);
 }
 
 .circle-small {
@@ -408,4 +489,13 @@
   height: 8px;
   border-radius: 50%;
   background-color: #fbbf24;
+}
+
+/* 8x8 filled black bullet for submenu items */
+.bullet-8 {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--drawer-color-text);
+  display: block;
 }
